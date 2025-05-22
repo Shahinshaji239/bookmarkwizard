@@ -1,8 +1,21 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import './App.css';
 
 function Home() {
+  const user = useSelector(store => store.auth.user);
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/blog/posts');
+    } else {
+      navigate('/auth/register');
+    }
+  };
+
   return (
     <div className="app">
       <Navbar />
@@ -21,7 +34,12 @@ function Home() {
         <div className="overlay p-4 rounded shadow-lg">
           <h1 className="display-4 fw-bold mb-3">Welcome to Personal Bookmarking</h1>
           <p className="lead mb-4">A beautiful space to save, organize, and share your favorite links.</p>
-          <a href="/blog/posts" className="btn btn-lg btn-light px-4 shadow-sm">Get Started</a>
+          <button
+            className="btn btn-lg btn-light px-4 shadow-sm"
+            onClick={handleGetStarted}
+          >
+            Get Started
+          </button>
         </div>
         <div className="hero-gradient"></div>
       </header>
