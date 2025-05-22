@@ -22,7 +22,7 @@ function Register() {
     axios.post('https://demo-blog.mashupstack.com/api/register', user)
       .then(response => {
         setErrorMessage('');
-        navigate('/');
+        navigate('/login');
       })
       .catch(error => {
         if (error.response?.data?.errors) {

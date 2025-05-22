@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Navbar from "../Navbar";
@@ -15,20 +15,20 @@ function ListPost() {
 
     const getPostsKey = (email) => `posts_${email}`;
 
+    const fetchPosts = useCallback(() => {
+        const postsKey = getPostsKey(userEmail);
+        const storedPosts = JSON.parse(localStorage.getItem(postsKey)) || [];
+        setAllPosts(storedPosts);
+        setFilteredPosts(storedPosts);
+    }, [userEmail]);
+
     useEffect(() => {
         if (!userEmail) {
             navigate("/");
             return;
         }
         fetchPosts();
-    }, [userEmail, navigate]);
-
-    function fetchPosts() {
-        const postsKey = getPostsKey(userEmail);
-        const storedPosts = JSON.parse(localStorage.getItem(postsKey)) || [];
-        setAllPosts(storedPosts);
-        setFilteredPosts(storedPosts);
-    }
+    }, [userEmail, navigate, fetchPosts]);
 
     function handleSearch(event) {
         event.preventDefault();

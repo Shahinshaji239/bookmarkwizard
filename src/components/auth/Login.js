@@ -14,31 +14,39 @@ function Login() {
   const navigate = useNavigate();
 
   const attemptLogin = async () => {
-    try {
-      const response = await axios.post(
-        "https://demo-blog.mashupstack.com/api/login",
-        { email, password }
-      );
-      setErrorMessage("");
-      const user = {
-        email: email,
-        token: response.data.token,
-      };
-      dispatch(setUser(user));
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/blog/posts");
-    } catch (error) {
-      if (error.response?.data) {
-        const data = error.response.data;
-        setErrorMessage(
-          data.errors ? Object.values(data.errors).join(" ") :
-            data.message || "Failed to login user. Please contact admin."
-        );
-      } else {
-        setErrorMessage("Failed to login user. Please try again.");
-      }
+  if (!email || !password) {
+    setErrorMessage("Please enter both email and password.");
+    console.error("Login skipped: missing fields");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "https://demo-blog.mashupstack.com/api/login",
+      { email, password }
+    );
+    const user = {
+      email: email,
+      token: response.data.token,
+    };
+    dispatch(setUser(user));
+    localStorage.setItem("user", JSON.stringify(user));
+    navigate("/blog/posts");
+  } catch (error) {
+    const apiMessage = error.response?.data?.message;
+    const apiErrors = error.response?.data?.errors;
+    console.error("Login error:", error.response?.data || error.message);
+
+    if (apiErrors) {
+      setErrorMessage(Object.values(apiErrors).join(" "));
+    } else if (apiMessage === "Invalid email or password") {
+      setErrorMessage("Invalid email or password. Please try again.");
+    } else {
+      setErrorMessage("Login failed. Please try again later.");
     }
-  };
+  }
+};
+
 
   return (
     <div>
@@ -55,8 +63,6 @@ function Login() {
           position: 'relative',
         }}
       >
-
-        {/* Overlay */}
         <div
           style={{
             position: 'absolute',
@@ -96,7 +102,7 @@ function Login() {
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Email</label>
               <input
-                type="text"
+                type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
